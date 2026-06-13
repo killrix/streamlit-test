@@ -104,7 +104,7 @@ if payment_mode=="UPI":
     )
 
     st.info(
-        "UPI ID : cafeparadise@oksbi"
+        "UPI ID : 9038345908@ybl"
     )
 
 st.divider()
