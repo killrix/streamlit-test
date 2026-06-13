@@ -168,12 +168,6 @@ animation:blink 1s infinite;
 """,
 unsafe_allow_html=True)
 
-points=int(grand_total/100)
-
-st.success(
-f"You earned {points} reward points ⭐"
-)
-
 
 coupon=st.text_input(
 "Coupon Code"

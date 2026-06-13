@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import sqlite3
@@ -7,9 +6,9 @@ import random
 import urllib.parse
 from datetime import date
 
-# -------------------------------
-# Page Config
-# -------------------------------
+# ----------------------------------------------------
+# PAGE CONFIG
+# ----------------------------------------------------
 
 st.set_page_config(
     page_title="Order Food",
@@ -17,11 +16,13 @@ st.set_page_config(
     layout="wide"
 )
 
-# -------------------------------
-# Database Connection
-# -------------------------------
+# ----------------------------------------------------
+# DATABASE
+# ----------------------------------------------------
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = os.path.dirname(
+    os.path.dirname(__file__)
+)
 
 db_path = os.path.join(
     BASE_DIR,
@@ -35,34 +36,32 @@ conn = sqlite3.connect(
 
 cursor = conn.cursor()
 
-# -------------------------------
 # Orders Table
-# -------------------------------
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS orders(
-    order_id INTEGER PRIMARY KEY,
-    customer_name TEXT,
-    mobile TEXT,
-    table_no INTEGER,
-    amount REAL,
-    status TEXT DEFAULT 'Preparing',
-    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+order_id INTEGER PRIMARY KEY,
+customer_name TEXT,
+mobile TEXT,
+table_no INTEGER,
+amount REAL,
+status TEXT DEFAULT 'Preparing',
+date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
 """)
 
-# -------------------------------
 # Tables Table
-# -------------------------------
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS tables(
-    table_no INTEGER PRIMARY KEY,
-    status TEXT
+table_no INTEGER PRIMARY KEY,
+status TEXT
 )
 """)
 
-for i in range(1, 11):
+# Initialize tables
+
+for i in range(1,11):
 
     cursor.execute(
         """
@@ -77,9 +76,9 @@ for i in range(1, 11):
 
 conn.commit()
 
-# -------------------------------
-# Theme
-# -------------------------------
+# ----------------------------------------------------
+# THEME
+# ----------------------------------------------------
 
 st.markdown("""
 <style>
@@ -110,17 +109,22 @@ animation:blink 1s infinite;
 }
 
 </style>
-""", unsafe_allow_html=True)
+""",
+unsafe_allow_html=True)
+
+# ----------------------------------------------------
+# TITLE
+# ----------------------------------------------------
 
 st.title("🍔 Cafe Paradise Ordering")
 
-# -------------------------------
-# Customer Details
-# -------------------------------
+# ----------------------------------------------------
+# CUSTOMER DETAILS
+# ----------------------------------------------------
 
-col1, col2 = st.columns(2)
+c1, c2 = st.columns(2)
 
-with col1:
+with c1:
 
     customer = st.text_input(
         "Customer Name"
@@ -130,20 +134,20 @@ with col1:
         "Mobile Number"
     )
 
-with col2:
+with c2:
 
     dob = st.date_input(
         "Date Of Birth",
         value=date(2000,1,1)
     )
 
-# -------------------------------
-# Birthday Discount
-# -------------------------------
-
-today = date.today()
+# ----------------------------------------------------
+# BIRTHDAY DISCOUNT
+# ----------------------------------------------------
 
 birthday = False
+
+today = date.today()
 
 if dob.day == today.day and dob.month == today.month:
 
@@ -152,7 +156,7 @@ if dob.day == today.day and dob.month == today.month:
     st.markdown(
         """
         <div class='discount'>
-        🎂 HAPPY BIRTHDAY!
+        🎂 HAPPY BIRTHDAY !
         20% DISCOUNT APPLIED
         🎉
         </div>
@@ -160,26 +164,26 @@ if dob.day == today.day and dob.month == today.month:
         unsafe_allow_html=True
     )
 
-# -------------------------------
-# Table Availability
-# -------------------------------
+# ----------------------------------------------------
+# TABLE AVAILABILITY
+# ----------------------------------------------------
 
-st.header("🟢 Table Availability")
+st.header("🪑 Table Availability")
 
 tables_df = pd.read_sql_query(
-    """
-    SELECT *
-    FROM tables
-    ORDER BY table_no
-    """,
-    conn
+"""
+SELECT *
+FROM tables
+ORDER BY table_no
+""",
+conn
 )
 
-cols = st.columns(3)
+cols = st.columns(5)
 
 for idx, row in tables_df.iterrows():
 
-    with cols[idx % 3]:
+    with cols[idx % 5]:
 
         if row["status"] == "Available":
 
@@ -187,20 +191,14 @@ for idx, row in tables_df.iterrows():
                 f"Table {row['table_no']}"
             )
 
-        elif row["status"] == "Occupied":
+        else:
 
             st.error(
                 f"Table {row['table_no']}"
             )
 
-        else:
-
-            st.warning(
-                f"Table {row['table_no']}"
-            )
-
 available_tables = tables_df[
-    tables_df["status"] == "Available"
+    tables_df["status"]=="Available"
 ]["table_no"].tolist()
 
 table_no = st.selectbox(
@@ -209,20 +207,19 @@ table_no = st.selectbox(
 )
 
 st.divider()
-
-# -------------------------------
-# Menu
-# -------------------------------
+# ----------------------------------------------------
+# MENU
+# ----------------------------------------------------
 
 menu = {
 
-    "Burger 🍔":150,
-    "Pizza 🍕":350,
-    "Coffee ☕":120,
-    "Pasta 🍝":220,
-    "French Fries 🍟":100,
-    "Mojito 🍹":180,
-    "Brownie 🍰":140
+    "Burger 🍔": 150,
+    "Pizza 🍕": 350,
+    "Coffee ☕": 120,
+    "Pasta 🍝": 220,
+    "French Fries 🍟": 100,
+    "Mojito 🍹": 180,
+    "Brownie 🍰": 140
 
 }
 
@@ -232,9 +229,9 @@ cart = {}
 
 for item, price in menu.items():
 
-    c1, c2 = st.columns([3,1])
+    col1, col2 = st.columns([3,1])
 
-    with c1:
+    with col1:
 
         st.markdown(
             f"""
@@ -246,7 +243,7 @@ for item, price in menu.items():
             unsafe_allow_html=True
         )
 
-    with c2:
+    with col2:
 
         qty = st.number_input(
             item,
@@ -259,9 +256,9 @@ for item, price in menu.items():
 
         cart[item] = qty
 
-# -------------------------------
-# Sidebar Cart
-# -------------------------------
+# ----------------------------------------------------
+# SIDEBAR CART
+# ----------------------------------------------------
 
 st.sidebar.title("🛒 Cart")
 
@@ -293,10 +290,6 @@ grand_total = subtotal + gst - discount
 
 points = int(grand_total / 100)
 
-st.sidebar.success(
-    f"⭐ Reward Points Earned: {points}"
-)
-
 st.sidebar.divider()
 
 st.sidebar.metric(
@@ -315,12 +308,16 @@ st.sidebar.metric(
 )
 
 st.sidebar.success(
-    f"Total ₹{grand_total:.2f}"
+    f"Grand Total ₹{grand_total:.2f}"
 )
 
-# -------------------------------
-# AI Recommendation
-# -------------------------------
+st.sidebar.success(
+    f"⭐ Reward Points : {points}"
+)
+
+# ----------------------------------------------------
+# AI RECOMMENDATION
+# ----------------------------------------------------
 
 st.header("🤖 AI Recommendation")
 
@@ -333,7 +330,7 @@ if subtotal < 300:
 elif subtotal < 600:
 
     st.info(
-        "Try Premium Pizza Combo 🍕"
+        "Try our Premium Pizza Combo 🍕"
     )
 
 else:
@@ -342,11 +339,86 @@ else:
         "You qualify for Premium Dining Rewards ⭐"
     )
 
-# -------------------------------
-# Place Order
-# -------------------------------
+# ----------------------------------------------------
+# PAYMENT
+# ----------------------------------------------------
 
-if st.button("Place Order 🚀"):
+st.divider()
+
+st.header("💳 Payment")
+
+
+payment_method = st.radio(
+    "Choose Payment Method",
+    [
+        "💵 Cash",
+        "📱 UPI",
+        "💳 Card"
+    ],
+    horizontal=True
+)
+
+# --------------------
+# UPI
+# --------------------
+
+if payment_method == "📱 UPI":
+
+    st.header("📱 Scan & Pay")
+
+    st.image(
+        "https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg",
+        width=220
+    )
+
+    st.info(
+        "UPI ID : cafeparadise@ybl"
+    )
+
+# --------------------
+# CARD PAYMENT
+# --------------------
+
+elif payment_method == "💳 Card":
+
+    st.header("💳 Card Details")
+
+    card_number = st.text_input(
+        "Card Number",
+        placeholder="1234 5678 9012 3456"
+    )
+
+    card_name = st.text_input(
+        "Name On Card"
+    )
+
+    c1, c2 = st.columns(2)
+
+    with c1:
+
+        expiry = st.text_input(
+            "Expiry Date",
+            placeholder="MM/YY"
+        )
+
+    with c2:
+
+        cvv = st.text_input(
+            "CVV",
+            type="password",
+            placeholder="123"
+        )
+
+    st.info(
+        "Accepted Cards : VISA • Mastercard • RuPay"
+    )
+
+
+# ----------------------------------------------------
+# PLACE ORDER
+# ----------------------------------------------------
+
+if st.button("Pay & Place Order 🚀"):
 
     if customer == "":
 
@@ -370,12 +442,12 @@ if st.button("Place Order 🚀"):
         cursor.execute(
             """
             INSERT INTO orders(
-                order_id,
-                customer_name,
-                mobile,
-                table_no,
-                amount,
-                status
+            order_id,
+            customer_name,
+            mobile,
+            table_no,
+            amount,
+            status
             )
             VALUES(?,?,?,?,?,?)
             """,
@@ -405,7 +477,49 @@ if st.button("Place Order 🚀"):
         st.balloons()
 
         st.success(
-            f"Order #{order_id} Confirmed!"
+            f"✅ Order #{order_id} Confirmed"
+        )
+
+        st.success(
+            f"⭐ Reward Points Earned : {points}"
+        )
+
+        st.divider()
+
+        st.header("🧾 Invoice")
+
+        st.code(
+f"""
+================================
+        CAFE PARADISE
+================================
+
+Order ID : {order_id}
+
+Customer : {customer}
+
+Mobile : {mobile}
+
+Table : {table_no}
+
+Payment Mode : {payment_method}
+
+{order_text}
+
+Subtotal : ₹{subtotal:.2f}
+
+Discount : ₹{discount:.2f}
+
+GST : ₹{gst:.2f}
+
+Grand Total : ₹{grand_total:.2f}
+
+Reward Points : {points}
+
+THANK YOU ❤️
+
+================================
+"""
         )
 
         message = f"""
@@ -430,13 +544,7 @@ Grand Total : ₹{grand_total:.2f}
         )
 
         st.link_button(
-            "📱 Send Order To WhatsApp",
+            "📱 Send Invoice To WhatsApp",
             whatsapp_url
         )
 
-
-points=int(grand_total/25)
-
-st.success(
-f"You earned {points} reward points ⭐"
-)
