@@ -291,6 +291,12 @@ gst = subtotal * 0.05
 
 grand_total = subtotal + gst - discount
 
+points = int(grand_total / 100)
+
+st.sidebar.success(
+    f"⭐ Reward Points Earned: {points}"
+)
+
 st.sidebar.divider()
 
 st.sidebar.metric(
@@ -427,3 +433,10 @@ Grand Total : ₹{grand_total:.2f}
             "📱 Send Order To WhatsApp",
             whatsapp_url
         )
+
+
+points=int(grand_total/25)
+
+st.success(
+f"You earned {points} reward points ⭐"
+)
