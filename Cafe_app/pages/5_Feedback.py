@@ -1,45 +1,42 @@
 import streamlit as st
-import sqlite3
+from streamlit_feedback import streamlit_feedback
 
-st.title("⭐ Customer Feedback")
-
-conn = sqlite3.connect(
-    "cafe_database.db",
-    check_same_thread=False
+st.set_page_config(
+    page_title="Customer Feedback",
+    page_icon="⭐"
 )
 
-name = st.text_input(
-    "Customer Name"
+st.title("⭐ Customer Experience")
+
+st.subheader("🍽 Food Quality")
+
+food = streamlit_feedback(
+    feedback_type="faces",
+    key="food"
 )
 
-rating = st.slider(
-    "Rating",
-    1,
-    5
+st.subheader("🪑 Comfort & Ambience")
+
+comfort = streamlit_feedback(
+    feedback_type="faces",
+    key="comfort"
+)
+
+st.subheader("👨‍🍳 Staff Behavior")
+
+staff = streamlit_feedback(
+    feedback_type="faces",
+    key="staff"
 )
 
 comments = st.text_area(
-    "Comments"
+    "Additional Comments"
 )
 
-if st.button("Submit Feedback"):
-
-    conn.execute(
-        """
-        INSERT INTO feedback
-        VALUES(?,?,?)
-        """,
-        (
-            name,
-            rating,
-            comments
-        )
-    )
-
-    conn.commit()
+if st.button("Submit Feedback ❤️"):
 
     st.balloons()
 
     st.success(
-        "Feedback Submitted!"
+        "Thank you for your valuable feedback!"
     )

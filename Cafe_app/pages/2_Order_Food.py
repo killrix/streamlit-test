@@ -4,6 +4,7 @@ import sqlite3
 import os
 import random
 import urllib.parse
+import time
 from datetime import date
 
 # ----------------------------------------------------
@@ -477,7 +478,13 @@ if st.button("Pay & Place Order 🚀"):
         st.balloons()
 
         st.success(
-            f"✅ Order #{order_id} Confirmed"
+                "Redirecting to Feedback page..."
+        )
+
+        time.sleep(3)
+
+        st.switch_page(
+            "pages/5_Feedback.py"
         )
 
         st.success(
